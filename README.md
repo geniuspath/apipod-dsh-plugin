@@ -1,5 +1,7 @@
 # APIPod for DeepSeek Harness
 
+English | [简体中文](README.zh-CN.md)
+
 Image and video generation tools for [DeepSeek Harness](https://deepseek-harness.github.io/deepseek-harness/) (dsh),
 backed by [APIPod](https://www.apipod.ai). One plugin gives a dsh agent the
 APIPod model catalog, price quotes, and asynchronous image and video jobs.
@@ -15,10 +17,7 @@ Requires dsh `>=0.2.2-rc.5 <0.3.0`.
 dsh plugin --profile <profile> add @apipod/dsh-plugin
 ```
 
-Then give dsh your API key (create one in the
-[APIPod console](https://www.apipod.ai/console/api-keys)). The plugin reads the
-credential reference `APIPOD_API_KEY`, which dsh resolves from its credential
-settings or from the environment:
+Then give dsh your API key (create one in the [APIPod console](https://www.apipod.ai/console/api-keys)). The plugin reads the credential reference `APIPOD_API_KEY`, which dsh resolves from its credential settings or from the environment:
 
 ```bash
 export APIPOD_API_KEY=...
@@ -29,6 +28,9 @@ Start dsh with that profile. To confirm the layer is applied:
 ```bash
 dsh --profile <profile> --dump-config
 ```
+
+During install pnpm may report missing `@deepseek-ai/*` peer dependencies. The
+dsh installation provides those packages; the warning can be ignored.
 
 ## Tools
 

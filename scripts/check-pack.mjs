@@ -14,7 +14,7 @@ if (!pkg.engines?.dsh) problems.push('package.json must declare engines.dsh')
 
 const [packed] = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { encoding: 'utf8' }))
 const files = packed.files.map((file) => file.path)
-const allowed = (path) => path.startsWith('lib/') || ['package.json', 'cordis.patch.yml', 'README.md', 'LICENSE'].includes(path)
+const allowed = (path) => path.startsWith('lib/') || ['package.json', 'cordis.patch.yml', 'README.md', 'README.zh-CN.md', 'LICENSE'].includes(path)
 for (const path of files.filter((path) => !allowed(path))) problems.push(`unexpected file in package: ${path}`)
 for (const required of ['lib/index.js', 'lib/index.d.ts', 'cordis.patch.yml', 'LICENSE', 'README.md']) {
   if (!files.includes(required)) problems.push(`missing from package: ${required}`)

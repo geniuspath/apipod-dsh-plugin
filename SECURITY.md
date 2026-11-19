@@ -37,7 +37,7 @@ dsh version, and steps to reproduce.
 - Releases are published from GitHub Actions with npm provenance, so the tarball
   can be traced to the commit that built it. Workflow actions are pinned by commit.
 - The published tarball contains only `lib/`, `cordis.patch.yml`, `README.md`,
-  `LICENSE` and `package.json`.
+  `README.zh-CN.md`, `LICENSE` and `package.json`.
 
 A dsh plugin runs inside the dsh process with the same access as dsh itself.
 Install plugins, including this one, only from a source you trust.
