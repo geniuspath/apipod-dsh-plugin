@@ -1,0 +1,8 @@
+# Layer applied when a dsh profile lists @apipod/dsh-plugin as a bundle.
+# `apiKeyRef` is the NAME of a credential reference, never the key itself:
+# set the value in dsh's credential settings or as an environment variable.
+- insert:
+    - id: apipod
+      name: '@apipod/dsh-plugin'
+      config:
+        apiKeyRef: APIPOD_API_KEY

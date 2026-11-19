@@ -1,0 +1,4 @@
+node_modules/
+lib/
+*.tgz
+.plugin-market-cache/

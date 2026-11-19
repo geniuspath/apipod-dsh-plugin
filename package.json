@@ -1,0 +1,78 @@
+{
+  "name": "@apipod/dsh-plugin",
+  "version": "0.1.0",
+  "description": "APIPod image and video generation tools for DeepSeek Harness (dsh)",
+  "license": "Apache-2.0",
+  "author": "APIPod",
+  "homepage": "https://www.apipod.ai/agent",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geniuspath/apipod-dsh-plugin.git"
+  },
+  "bugs": "https://github.com/geniuspath/apipod-dsh-plugin/issues",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "apipod",
+    "image-generation",
+    "video-generation"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.2.2-rc.5 <0.3.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "rm -rf lib && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "check:pack": "node scripts/check-pack.mjs",
+    "index": "node scripts/build-index.mjs",
+    "prepublishOnly": "pnpm build && pnpm check:pack"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.19.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.1.0",
+    "@deepseek-ai/dsh-credentials": ">=0.2.2-rc.5 <0.3.0",
+    "@deepseek-ai/dsh-error": ">=0.2.2-rc.5 <0.3.0",
+    "@deepseek-ai/dsh-tools": ">=0.2.2-rc.5 <0.3.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.1.0",
+    "@deepseek-ai/dsh-credentials": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-error": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-llm": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-system-prompt": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-tool-executor-native": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-user-approval": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-util-values": "0.2.2-rc.5",
+    "@types/node": "^24.0.0",
+    "typescript": "5.9.3"
+  }
+}
