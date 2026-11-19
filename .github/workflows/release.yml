@@ -1,10 +1,27 @@
 name: Release
 
-# Publishes to npm with provenance through npm trusted publishing (OIDC): no npm
-# token is stored in this repository. Then refreshes the plugin index on Pages.
+# Publishes to npm with provenance, then refreshes the plugin index on Pages.
+#
+# Auth: npm trusted publishing (OIDC). No npm token is stored in this repository.
+# The trusted publisher is configured in the package's settings on npmjs.com with
+# workflow `release.yml` and environment `npm`; the job below must run in that
+# environment for npm to accept it. The environment requires a reviewer's approval.
+#
+# Run it by hand (Actions -> Release -> Run workflow) to rehearse: with dry_run
+# on, everything runs except the upload.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and pack only; upload nothing
+        type: boolean
+        default: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -12,6 +29,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment: npm
     permissions:
       contents: read
       id-token: write
@@ -27,16 +45,30 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - name: Tag must match package.json
+        if: github.ref_type == 'tag'
         env:
           TAG: ${{ github.ref_name }}
         run: test "$TAG" = "v$(node -p "require('./package.json').version")"
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
-      - run: npm publish
+      - name: Publish
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            npm publish --dry-run
+          elif [ "$REF_TYPE" != "tag" ]; then
+            echo "A real publish must run from a v* tag." >&2
+            exit 1
+          else
+            npm publish
+          fi
 
   index:
     needs: publish
+    if: inputs.dry_run != true
     runs-on: ubuntu-latest
     permissions:
       contents: read
