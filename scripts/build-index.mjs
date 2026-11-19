@@ -1,6 +1,8 @@
 // Writes the dsh plugin index (format 1) for this package from what is actually
 // published on npm. Only downloads registry metadata; installs and runs nothing.
-//   node scripts/build-index.mjs [--out site/index.json]
+//   node scripts/build-index.mjs [--out site/index.json] [--expect <version>]
+// With --expect, waits until that version is visible on the registry: npm accepts
+// an upload a minute or two before the version can be read back.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 
@@ -9,16 +11,33 @@ const pkg = JSON.parse(readFileSync(new URL('package.json', root), 'utf8'))
 const outFlag = process.argv.indexOf('--out')
 const out = resolve(outFlag === -1 ? 'site/index.json' : process.argv[outFlag + 1])
 
-const response = await fetch(`https://registry.npmjs.org/${pkg.name.replace('/', '%2F')}`)
-if (response.status === 404) {
+const expectFlag = process.argv.indexOf('--expect')
+const expected = expectFlag === -1 ? undefined : process.argv[expectFlag + 1]
+const WAIT_MS = 10 * 60 * 1000
+const POLL_MS = 10 * 1000
+
+async function readRegistry() {
+  const response = await fetch(`https://registry.npmjs.org/${pkg.name.replace('/', '%2F')}`)
+  if (response.status === 404) return undefined
+  if (!response.ok) throw new Error(`npm registry returned ${response.status}`)
+  return response.json()
+}
+
+let registry = await readRegistry()
+const deadline = Date.now() + WAIT_MS
+while (expected && !registry?.versions?.[expected] && Date.now() < deadline) {
+  console.log(`waiting for ${pkg.name}@${expected} to appear on npm...`)
+  await new Promise((resolve) => setTimeout(resolve, POLL_MS))
+  registry = await readRegistry()
+}
+if (!registry) {
   console.error(`${pkg.name} is not published on npm yet; an index needs at least one published version.`)
   process.exit(1)
 }
-if (!response.ok) {
-  console.error(`npm registry returned ${response.status}`)
+if (expected && !registry.versions?.[expected]) {
+  console.error(`${pkg.name}@${expected} did not appear on npm within ${WAIT_MS / 60000} minutes.`)
   process.exit(1)
 }
-const registry = await response.json()
 
 const versions = Object.values(registry.versions ?? {})
   .filter((version) => !version.deprecated && version.dsh?.bundle)
